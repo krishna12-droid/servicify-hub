@@ -13,6 +13,7 @@ import {
   TableRow
 } from "@/components/ui/table";
 import { Booking } from '@/types';
+import { Skeleton } from "@/components/ui/skeleton";
 
 const statusColor = (status: string) => {
   switch (status) {
@@ -47,9 +48,9 @@ const statusIcon = (status: string) => {
 // Define a simplified booking type just for this component
 interface BookingItem {
   id: string;
-  service_name?: string;
+  description?: string;
   date: string;
-  time?: string;
+  duration: number;
   status: string;
 }
 
@@ -80,9 +81,9 @@ const Bookings = () => {
           // Transform the data to match our simplified BookingItem interface
           const formattedBookings = data.map(booking => ({
             id: booking.id,
-            service_name: booking.service_name || 'Unnamed Service',
+            description: booking.description || 'Unnamed Service',
             date: booking.service_date,
-            time: booking.time || 'Not specified',
+            duration: booking.duration,
             status: booking.status
           }));
           setBookings(formattedBookings);
@@ -98,7 +99,16 @@ const Bookings = () => {
   }, [user]);
 
   if (loading) {
-    return <div className="container mx-auto p-4">Loading bookings...</div>;
+    return (
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-semibold mb-4">My Bookings</h1>
+        <div className="space-y-2">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
+        </div>
+      </div>
+    );
   }
 
   if (error) {
@@ -121,7 +131,7 @@ const Bookings = () => {
               <TableRow>
                 <TableHead>Service</TableHead>
                 <TableHead>Date</TableHead>
-                <TableHead>Time</TableHead>
+                <TableHead>Duration</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -133,7 +143,7 @@ const Bookings = () => {
                     <div className="flex items-center">
                       <div className="ml-3">
                         <p className="text-gray-900 whitespace-no-wrap">
-                          {booking.service_name}
+                          {booking.description}
                         </p>
                       </div>
                     </div>
@@ -145,7 +155,7 @@ const Bookings = () => {
                   </TableCell>
                   <TableCell>
                     <p className="text-gray-900 whitespace-no-wrap">
-                      {booking.time}
+                      {booking.duration} min
                     </p>
                   </TableCell>
                   <TableCell>
