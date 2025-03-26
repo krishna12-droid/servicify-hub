@@ -9,13 +9,264 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      bookings: {
+        Row: {
+          address: string | null
+          client_id: string
+          created_at: string
+          description: string | null
+          duration: number
+          id: string
+          location_lat: number | null
+          location_lng: number | null
+          professional_id: string
+          service_date: string
+          status: string
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          client_id: string
+          created_at?: string
+          description?: string | null
+          duration: number
+          id?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          professional_id: string
+          service_date: string
+          status: string
+          total_amount: number
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          client_id?: string
+          created_at?: string
+          description?: string | null
+          duration?: number
+          id?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          professional_id?: string
+          service_date?: string
+          status?: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      professionals: {
+        Row: {
+          address: string | null
+          bio: string | null
+          category_id: string
+          city: string | null
+          country: string | null
+          created_at: string
+          experience_years: number | null
+          headline: string | null
+          hourly_rate: number | null
+          id: string
+          is_available: boolean | null
+          is_verified: boolean | null
+          location_lat: number | null
+          location_lng: number | null
+          postal_code: string | null
+          state: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          bio?: string | null
+          category_id: string
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          experience_years?: number | null
+          headline?: string | null
+          hourly_rate?: number | null
+          id?: string
+          is_available?: boolean | null
+          is_verified?: boolean | null
+          location_lat?: number | null
+          location_lng?: number | null
+          postal_code?: string | null
+          state?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          bio?: string | null
+          category_id?: string
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          experience_years?: number | null
+          headline?: string | null
+          hourly_rate?: number | null
+          id?: string
+          is_available?: boolean | null
+          is_verified?: boolean | null
+          location_lat?: number | null
+          location_lng?: number | null
+          postal_code?: string | null
+          state?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professionals_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          phone_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone_number?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          booking_id: string
+          client_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          professional_id: string
+          rating: number
+        }
+        Insert: {
+          booking_id: string
+          client_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          professional_id: string
+          rating: number
+        }
+        Update: {
+          booking_id?: string
+          client_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          professional_id?: string
+          rating?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      professionals_in_radius: {
+        Args: {
+          latitude: number
+          longitude: number
+          radius_in_km: number
+        }
+        Returns: {
+          address: string | null
+          bio: string | null
+          category_id: string
+          city: string | null
+          country: string | null
+          created_at: string
+          experience_years: number | null
+          headline: string | null
+          hourly_rate: number | null
+          id: string
+          is_available: boolean | null
+          is_verified: boolean | null
+          location_lat: number | null
+          location_lng: number | null
+          postal_code: string | null
+          state: string | null
+          updated_at: string
+          user_id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
