@@ -69,19 +69,44 @@ export function useProfessionalsByLocation(lat: number | null, lng: number | nul
     queryFn: async () => {
       if (lat === null || lng === null) return [];
       
-      const { data, error } = await supabase
+      // First, get the professionals in radius using the RPC function
+      const { data: professionalsInRadius, error: rpcError } = await supabase
         .rpc('professionals_in_radius', { 
           latitude: lat,
           longitude: lng,
           radius_in_km: radius
-        })
+        });
+      
+      if (rpcError) throw rpcError;
+      
+      if (!professionalsInRadius || professionalsInRadius.length === 0) {
+        return [];
+      }
+      
+      // Get the IDs of professionals within radius
+      const professionalIds = professionalsInRadius.map(pro => pro.id);
+      
+      // Then fetch complete professional data with profiles for those IDs
+      const { data: professionals, error } = await supabase
+        .from('professionals')
         .select(`
           *,
           profiles (*)
-        `);
+        `)
+        .in('id', professionalIds);
       
       if (error) throw error;
-      return data as ProfessionalWithCategory[];
+      
+      // Combine the distance info from professionalsInRadius with the full data
+      const result = professionals?.map(professional => {
+        const proWithRadius = professionalsInRadius.find(p => p.id === professional.id);
+        return {
+          ...professional,
+          distance: proWithRadius ? undefined : undefined // We'll calculate this in the component
+        };
+      });
+      
+      return result as ProfessionalWithCategory[];
     },
     enabled: lat !== null && lng !== null,
   });

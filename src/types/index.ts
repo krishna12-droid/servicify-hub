@@ -11,8 +11,8 @@ export type Review = Database['public']['Tables']['reviews']['Row'];
 
 // Extended types with additional properties
 export interface ProfessionalWithCategory extends Professional {
-  categories?: Category;
   profile?: Profile;
+  categories?: Category;
   distance?: number;
   rating?: number;
 }

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -14,7 +13,7 @@ import {
 import { MapPin, Filter, Loader2 } from 'lucide-react';
 import LocationSearch from '@/components/LocationSearch';
 import { useCategories, useProfessionalsByLocation } from '@/hooks/use-supabase';
-import { formatDistance } from '@/utils/location';
+import { calculateDistance, formatDistance } from '@/utils/location';
 import { ProfessionalWithCategory } from '@/types';
 
 const FindProfessionals = () => {
@@ -36,7 +35,6 @@ const FindProfessionals = () => {
     setLocation({ lat, lng, address });
   };
 
-  // Filter professionals by category if one is selected
   const filteredProfessionals = professionals?.filter(pro => 
     !selectedCategory || pro.category_id === selectedCategory
   );
@@ -132,7 +130,6 @@ const FindProfessionals = () => {
   );
 };
 
-// Professional card component
 interface ProfessionalCardProps {
   professional: ProfessionalWithCategory;
   userLat: number;
@@ -140,7 +137,6 @@ interface ProfessionalCardProps {
 }
 
 const ProfessionalCard = ({ professional, userLat, userLng }: ProfessionalCardProps) => {
-  // Calculate distance between user and professional
   const distance = professional.location_lat && professional.location_lng ? 
     formatDistance(calculateDistance(
       userLat, 
@@ -149,7 +145,7 @@ const ProfessionalCard = ({ professional, userLat, userLng }: ProfessionalCardPr
       professional.location_lng
     )) : 'Unknown';
   
-  const profileData = professional.profiles;
+  const profileData = professional.profile;
   const fullName = `${profileData?.first_name || ''} ${profileData?.last_name || ''}`.trim() || 'Unnamed Professional';
   const avatarUrl = profileData?.avatar_url || '/placeholder.svg';
 
