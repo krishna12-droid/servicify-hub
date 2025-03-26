@@ -1,7 +1,18 @@
+
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Calendar, Clock, CheckCircle, Check, X, HelpCircle } from 'lucide-react';
+import { 
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table";
+import { Booking } from '@/types';
 
 const statusColor = (status: string) => {
   switch (status) {
@@ -33,11 +44,20 @@ const statusIcon = (status: string) => {
   }
 };
 
+// Define a simplified booking type just for this component
+interface BookingItem {
+  id: string;
+  service_name?: string;
+  date: string;
+  time?: string;
+  status: string;
+}
+
 const Bookings = () => {
   const { user } = useAuth();
-  const [bookings, setBookings] = useState([]);
+  const [bookings, setBookings] = useState<BookingItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -51,13 +71,21 @@ const Bookings = () => {
         const { data, error } = await supabase
           .from('bookings')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('client_id', user.id)
           .order('created_at', { ascending: false });
 
         if (error) {
           setError(error.message);
         } else {
-          setBookings(data);
+          // Transform the data to match our simplified BookingItem interface
+          const formattedBookings = data.map(booking => ({
+            id: booking.id,
+            service_name: booking.service_name || 'Unnamed Service',
+            date: booking.service_date,
+            time: booking.time || 'Not specified',
+            status: booking.status
+          }));
+          setBookings(formattedBookings);
         }
       } catch (err: any) {
         setError(err.message);
@@ -88,30 +116,20 @@ const Bookings = () => {
         <div className="text-gray-500">No bookings found.</div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-full leading-normal">
-            <thead>
-              <tr>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Service
-                </th>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Time
-                </th>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Service</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Time</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {bookings.map((booking) => (
-                <tr key={booking.id}>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                <TableRow key={booking.id}>
+                  <TableCell>
                     <div className="flex items-center">
                       <div className="ml-3">
                         <p className="text-gray-900 whitespace-no-wrap">
@@ -119,32 +137,32 @@ const Bookings = () => {
                         </p>
                       </div>
                     </div>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                  </TableCell>
+                  <TableCell>
                     <p className="text-gray-900 whitespace-no-wrap">
                       {new Date(booking.date).toLocaleDateString()}
                     </p>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                  </TableCell>
+                  <TableCell>
                     <p className="text-gray-900 whitespace-no-wrap">
                       {booking.time}
                     </p>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                  </TableCell>
+                  <TableCell>
                     <span className={`px-2 py-1 rounded-full flex items-center gap-1 ${statusColor(booking.status)}`}>
                       {statusIcon(booking.status)}
                       {booking.status}
                     </span>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                  </TableCell>
+                  <TableCell>
                     <button className="text-indigo-600 hover:text-indigo-900">
                       View Details
                     </button>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       )}
     </div>
