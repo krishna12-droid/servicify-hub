@@ -1,47 +1,74 @@
 
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import ServiceCard from './ServiceCard';
 import { Wrench, Zap, Construction, Home, Settings, Car } from 'lucide-react';
+import { useCategories } from '@/hooks/use-supabase';
 
 const CategorySection = () => {
-  const services = [
+  const { data: dbCategories } = useCategories();
+  
+  // Default services in case the database categories aren't loaded
+  const defaultServices = [
     {
       icon: <Wrench className="h-6 w-6 text-primary" />,
       title: 'Plumbing',
       description: 'Expert plumbers for repairs, installations, and maintenance of all your plumbing systems.',
-      link: '/services/plumbing'
+      slug: 'plumbing'
     },
     {
       icon: <Zap className="h-6 w-6 text-primary" />,
       title: 'Electrical',
       description: 'Licensed electricians for all your electrical repairs, installations, and upgrades.',
-      link: '/services/electrical'
+      slug: 'electrical'
     },
     {
       icon: <Construction className="h-6 w-6 text-primary" />,
       title: 'Carpentry',
       description: 'Skilled carpenters for furniture assembly, repairs, and custom woodworking projects.',
-      link: '/services/carpentry'
+      slug: 'carpentry'
     },
     {
       icon: <Home className="h-6 w-6 text-primary" />,
       title: 'Cleaning',
       description: 'Professional cleaning services for residential and commercial properties.',
-      link: '/services/cleaning'
+      slug: 'cleaning'
     },
     {
       icon: <Settings className="h-6 w-6 text-primary" />,
       title: 'Appliance Repair',
       description: 'Expert technicians to repair and maintain all your home appliances.',
-      link: '/services/appliance-repair'
+      slug: 'appliance-repair'
     },
     {
       icon: <Car className="h-6 w-6 text-primary" />,
       title: 'Moving Services',
       description: 'Reliable moving services to help you relocate with ease and efficiency.',
-      link: '/services/moving'
+      slug: 'moving'
     }
   ];
+  
+  // Map database categories to our UI if available
+  const services = dbCategories && dbCategories.length > 0
+    ? dbCategories.map(cat => {
+        const iconMap = {
+          'Plumbing': <Wrench className="h-6 w-6 text-primary" />,
+          'Electrical': <Zap className="h-6 w-6 text-primary" />,
+          'Carpentry': <Construction className="h-6 w-6 text-primary" />,
+          'Cleaning': <Home className="h-6 w-6 text-primary" />,
+          'Appliance Repair': <Settings className="h-6 w-6 text-primary" />,
+          'Moving Services': <Car className="h-6 w-6 text-primary" />
+        };
+        
+        return {
+          icon: cat.icon ? iconMap[cat.name] || <Settings className="h-6 w-6 text-primary" /> : <Settings className="h-6 w-6 text-primary" />,
+          title: cat.name,
+          description: cat.description || `Professional ${cat.name} services for your home or business.`,
+          slug: cat.name.toLowerCase().replace(/\s+/g, '-'),
+          id: cat.id
+        };
+      })
+    : defaultServices;
 
   return (
     <section className="py-24 bg-accent/30">
@@ -72,7 +99,7 @@ const CategorySection = () => {
               title={service.title}
               description={service.description}
               delay={index * 0.1}
-              link={service.link}
+              link={`/services/${service.slug}`}
             />
           ))}
         </div>

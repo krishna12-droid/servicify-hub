@@ -4,8 +4,11 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Search, Menu, X } from 'lucide-react';
+import NavbarLinks from './NavbarLinks';
+import { useAuth } from '@/context/AuthContext';
 
 const Navbar = () => {
+  const { user } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -47,42 +50,7 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              <Link to="/" className="text-sm font-medium transition-colors hover:text-primary">
-                Home
-              </Link>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <Link to="/services" className="text-sm font-medium transition-colors hover:text-primary">
-                Services
-              </Link>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <Link to="/professionals" className="text-sm font-medium transition-colors hover:text-primary">
-                Professionals
-              </Link>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <Link to="/about" className="text-sm font-medium transition-colors hover:text-primary">
-                About
-              </Link>
-            </motion.div>
+            <NavbarLinks />
           </nav>
 
           {/* Desktop Actions */}
@@ -96,24 +64,33 @@ const Navbar = () => {
                 <Search className="h-5 w-5" />
               </Button>
             </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-            >
-              <Button variant="outline" className="rounded-full">
-                Sign In
-              </Button>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.7 }}
-            >
-              <Button className="rounded-full">
-                Get Started
-              </Button>
-            </motion.div>
+            
+            {!user && (
+              <>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.6 }}
+                >
+                  <Link to="/auth">
+                    <Button variant="outline" className="rounded-full">
+                      Sign In
+                    </Button>
+                  </Link>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.7 }}
+                >
+                  <Link to="/auth?tab=signup">
+                    <Button className="rounded-full">
+                      Get Started
+                    </Button>
+                  </Link>
+                </motion.div>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -160,26 +137,47 @@ const Navbar = () => {
                 Services
               </Link>
               <Link 
-                to="/professionals" 
+                to="/find-professionals" 
                 className="text-sm font-medium py-2 transition-colors hover:text-primary"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                Professionals
+                Find Professionals
               </Link>
-              <Link 
-                to="/about" 
-                className="text-sm font-medium py-2 transition-colors hover:text-primary"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                About
-              </Link>
+              {user && (
+                <Link 
+                  to="/bookings" 
+                  className="text-sm font-medium py-2 transition-colors hover:text-primary"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  My Bookings
+                </Link>
+              )}
               <div className="flex flex-col space-y-2 pt-2 border-t border-border">
-                <Button variant="outline" className="w-full justify-start">
-                  Sign In
-                </Button>
-                <Button className="w-full justify-start">
-                  Get Started
-                </Button>
+                {user ? (
+                  <Button 
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      // Call sign out function that your NavbarLinks is providing
+                    }}
+                    variant="outline" 
+                    className="w-full justify-start"
+                  >
+                    Sign Out
+                  </Button>
+                ) : (
+                  <>
+                    <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full justify-start">
+                        Sign In
+                      </Button>
+                    </Link>
+                    <Link to="/auth?tab=signup" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button className="w-full justify-start">
+                        Get Started
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </nav>
           </div>

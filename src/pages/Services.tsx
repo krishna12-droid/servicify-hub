@@ -1,10 +1,10 @@
 
 import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, Filter, Wrench, Zap, Construction, Home, Settings, Car } from 'lucide-react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import { useCategories } from '@/hooks/use-supabase';
 
 const Services = () => {
   // Scroll to top on page load
@@ -12,47 +12,78 @@ const Services = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  const categories = [
+  const { data: dbCategories } = useCategories();
+
+  const defaultCategories = [
     {
       icon: <Wrench className="h-5 w-5" />,
       name: 'Plumbing',
-      count: 42
+      count: 42,
+      slug: 'plumbing'
     },
     {
       icon: <Zap className="h-5 w-5" />,
       name: 'Electrical',
-      count: 38
+      count: 38,
+      slug: 'electrical'
     },
     {
       icon: <Construction className="h-5 w-5" />,
       name: 'Carpentry',
-      count: 29
+      count: 29,
+      slug: 'carpentry'
     },
     {
       icon: <Home className="h-5 w-5" />,
       name: 'Cleaning',
-      count: 45
+      count: 45,
+      slug: 'cleaning'
     },
     {
       icon: <Settings className="h-5 w-5" />,
       name: 'Appliance Repair',
-      count: 32
+      count: 32,
+      slug: 'appliance-repair'
     },
     {
       icon: <Car className="h-5 w-5" />,
       name: 'Moving Services',
-      count: 27
+      count: 27,
+      slug: 'moving'
     }
   ];
 
-  const services = [
+  // Map database categories to our UI if available
+  const categories = dbCategories && dbCategories.length > 0
+    ? dbCategories.map(cat => {
+        const iconMap = {
+          'Plumbing': <Wrench className="h-5 w-5" />,
+          'Electrical': <Zap className="h-5 w-5" />,
+          'Carpentry': <Construction className="h-5 w-5" />,
+          'Cleaning': <Home className="h-5 w-5" />,
+          'Appliance Repair': <Settings className="h-5 w-5" />,
+          'Moving Services': <Car className="h-5 w-5" />
+        };
+        
+        return {
+          icon: cat.icon ? iconMap[cat.name] || <Settings className="h-5 w-5" /> : <Settings className="h-5 w-5" />,
+          name: cat.name,
+          count: Math.floor(Math.random() * 50) + 10,
+          slug: cat.name.toLowerCase().replace(/\s+/g, '-'),
+          id: cat.id
+        };
+      })
+    : defaultCategories;
+
+  const defaultServices = [
     {
       id: 1,
       title: 'Pipe Repair & Installation',
       category: 'Plumbing',
       description: 'Professional pipe repair and installation services for your home or business.',
       price: 'From $85',
-      imageUrl: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?q=80&w=1469&auto=format&fit=crop'
+      imageUrl: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?q=80&w=1469&auto=format&fit=crop',
+      slug: 'plumbing'
     },
     {
       id: 2,
@@ -60,7 +91,8 @@ const Services = () => {
       category: 'Electrical',
       description: 'Licensed electricians for all your electrical wiring and repair needs.',
       price: 'From $95',
-      imageUrl: 'https://images.unsplash.com/photo-1509023464722-18d996393ca8?q=80&w=1470&auto=format&fit=crop'
+      imageUrl: 'https://images.unsplash.com/photo-1509023464722-18d996393ca8?q=80&w=1470&auto=format&fit=crop',
+      slug: 'electrical'
     },
     {
       id: 3,
@@ -68,7 +100,8 @@ const Services = () => {
       category: 'Carpentry',
       description: 'Expert furniture assembly and installation for your home or office.',
       price: 'From $70',
-      imageUrl: 'https://images.unsplash.com/photo-1594125674956-61a9b49c8ecc?q=80&w=1374&auto=format&fit=crop'
+      imageUrl: 'https://images.unsplash.com/photo-1594125674956-61a9b49c8ecc?q=80&w=1374&auto=format&fit=crop',
+      slug: 'carpentry'
     },
     {
       id: 4,
@@ -76,7 +109,8 @@ const Services = () => {
       category: 'Cleaning',
       description: 'Thorough cleaning services to make your home spotless and fresh.',
       price: 'From $120',
-      imageUrl: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1470&auto=format&fit=crop'
+      imageUrl: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1470&auto=format&fit=crop',
+      slug: 'cleaning'
     },
     {
       id: 5,
@@ -84,7 +118,8 @@ const Services = () => {
       category: 'Appliance Repair',
       description: 'Fast and reliable refrigerator repair services by certified technicians.',
       price: 'From $110',
-      imageUrl: 'https://images.unsplash.com/photo-1585664811087-47f65abbad64?q=80&w=1470&auto=format&fit=crop'
+      imageUrl: 'https://images.unsplash.com/photo-1585664811087-47f65abbad64?q=80&w=1470&auto=format&fit=crop',
+      slug: 'appliance-repair'
     },
     {
       id: 6,
@@ -92,14 +127,26 @@ const Services = () => {
       category: 'Moving Services',
       description: 'Efficient and careful moving services for a stress-free relocation.',
       price: 'From $150',
-      imageUrl: 'https://images.unsplash.com/photo-1600518464441-7a8421891f30?q=80&w=1470&auto=format&fit=crop'
+      imageUrl: 'https://images.unsplash.com/photo-1600518464441-7a8421891f30?q=80&w=1470&auto=format&fit=crop',
+      slug: 'moving'
     }
   ];
 
+  // Map services with slug
+  const services = defaultServices.map(service => {
+    // Find if we have a matching database category
+    const matchedCategory = dbCategories?.find(cat => 
+      cat.name.toLowerCase() === service.category.toLowerCase()
+    );
+    
+    return {
+      ...service,
+      categoryId: matchedCategory?.id || null
+    };
+  });
+
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
       <main className="flex-1 page-transition">
         {/* Header */}
         <section className="bg-accent/30 pt-32 pb-16">
@@ -151,7 +198,10 @@ const Services = () => {
                   <ul className="space-y-2">
                     {categories.map((category) => (
                       <li key={category.name}>
-                        <button className="flex items-center justify-between w-full py-2 text-left text-sm hover:text-primary transition-colors">
+                        <Link 
+                          to={`/services/${category.slug}`}
+                          className="flex items-center justify-between w-full py-2 text-left text-sm hover:text-primary transition-colors"
+                        >
                           <div className="flex items-center space-x-3">
                             <div className="p-1.5 bg-primary/10 rounded-md text-primary">
                               {category.icon}
@@ -159,7 +209,7 @@ const Services = () => {
                             <span>{category.name}</span>
                           </div>
                           <span className="text-muted-foreground">({category.count})</span>
-                        </button>
+                        </Link>
                       </li>
                     ))}
                   </ul>
@@ -283,7 +333,9 @@ const Services = () => {
                           
                           <div className="flex justify-between items-center pt-3 border-t border-border">
                             <span className="font-medium">{service.price}</span>
-                            <Button size="sm">Book Now</Button>
+                            <Link to={`/services/${service.slug}`}>
+                              <Button size="sm">Book Now</Button>
+                            </Link>
                           </div>
                         </div>
                       </div>
@@ -306,8 +358,6 @@ const Services = () => {
           </div>
         </section>
       </main>
-      
-      <Footer />
     </div>
   );
 };
